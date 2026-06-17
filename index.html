@@ -45,6 +45,17 @@
             line-height: 1.6;
             overflow-x: hidden;
             min-height: 100vh;
+            padding-top: 4rem;
+        }
+
+        /* 隐藏滚动条但保持滚动功能 */
+        body::-webkit-scrollbar {
+            display: none;
+        }
+
+        body {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
 
         h1, h2, h3, h4, h5, h6 {
@@ -179,9 +190,11 @@
             left: 0;
             right: 0;
             height: 4rem;
-            background: #ffffff;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             z-index: 1001;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
         /* 调整主内容区域，避免被占位遮挡 */
