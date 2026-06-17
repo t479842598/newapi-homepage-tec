@@ -1742,6 +1742,192 @@
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
             canvas.style.display = 'none';
         }
+
+        // ===== New API 数据获取 =====
+        // 配置项
+        const API_CONFIG = {
+            baseURL: 'https://api.tang74.top', // 你的 New API 后端地址
+            // 如果用户已登录，从 localStorage 或 cookie 中获取 token
+            getToken: () => {
+                // 尝试从多个来源获取 token
+                return localStorage.getItem('token') ||
+                       sessionStorage.getItem('token') ||
+                       getCookie('token');
+            }
+        };
+
+        // 获取 Cookie 辅助函数
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+
+        // 格式化数字
+        function formatNumber(num) {
+            if (!num && num !== 0) return '0';
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+
+        // 格式化金额
+        function formatMoney(amount) {
+            if (!amount && amount !== 0) return '$0.00';
+            return '$' + parseFloat(amount).toFixed(2);
+        }
+
+        // 隐藏 API Key（只显示前后几位）
+        function maskApiKey(key) {
+            if (!key) return 'sk-proj-xxxx...xxxx';
+            if (key.length <= 16) return key;
+            return key.substring(0, 10) + '...' + key.substring(key.length - 4);
+        }
+
+        // 获取用户信息
+        async function fetchUserData() {
+            const token = API_CONFIG.getToken();
+
+            // 如果没有 token，显示未登录状态
+            if (!token) {
+                updateUIWithDefaultData();
+                return;
+            }
+
+            try {
+                // 调用 New API 的用户信息接口
+                const response = await fetch(`${API_CONFIG.baseURL}/api/user/self`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('获取用户信息失败');
+                }
+
+                const data = await response.json();
+
+                if (data.success && data.data) {
+                    updateUIWithUserData(data.data);
+                } else {
+                    updateUIWithDefaultData();
+                }
+            } catch (error) {
+                console.log('获取用户数据失败:', error.message);
+                updateUIWithDefaultData();
+            }
+        }
+
+        // 获取用户的 API Keys
+        async function fetchApiKeys() {
+            const token = API_CONFIG.getToken();
+            if (!token) return null;
+
+            try {
+                const response = await fetch(`${API_CONFIG.baseURL}/api/token`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) return null;
+
+                const data = await response.json();
+
+                if (data.success && data.data && data.data.length > 0) {
+                    // 返回第一个有效的 key
+                    return data.data[0].key || null;
+                }
+            } catch (error) {
+                console.log('获取 API Key 失败:', error.message);
+            }
+            return null;
+        }
+
+        // 更新 UI 显示用户数据
+        async function updateUIWithUserData(userData) {
+            // 获取 API Key
+            const apiKey = await fetchApiKeys();
+
+            // 更新 API Key 显示
+            const apiKeyElement = document.querySelector('.api-key-value');
+            if (apiKeyElement && apiKey) {
+                apiKeyElement.textContent = maskApiKey(apiKey);
+                apiKeyElement.dataset.fullKey = apiKey; // 保存完整 key 用于复制
+            }
+
+            // 更新今日调用次数
+            const todayCallsElement = document.querySelector('.usage-stat-value');
+            if (todayCallsElement && userData.todayCalls !== undefined) {
+                todayCallsElement.innerHTML = formatNumber(userData.todayCalls) + ' <span>次</span>';
+            }
+
+            // 更新剩余额度
+            const remainingQuotaElements = document.querySelectorAll('.usage-stat-value');
+            if (remainingQuotaElements.length > 1 && userData.quota !== undefined) {
+                const remainingQuota = (userData.quota - (userData.usedQuota || 0)) / 500000; // 转换为美元
+                remainingQuotaElements[1].textContent = formatMoney(remainingQuota);
+            }
+        }
+
+        // 更新为默认数据（未登录状态）
+        function updateUIWithDefaultData() {
+            const apiKeyElement = document.querySelector('.api-key-value');
+            if (apiKeyElement) {
+                apiKeyElement.textContent = 'sk-proj-xxxx...xxxx';
+            }
+
+            const usageStatValues = document.querySelectorAll('.usage-stat-value');
+            if (usageStatValues.length >= 2) {
+                usageStatValues[0].innerHTML = '-- <span>次</span>';
+                usageStatValues[1].textContent = '$--';
+            }
+        }
+
+        // 复制 API Key 功能
+        function setupCopyButton() {
+            const copyBtn = document.querySelector('.api-key-copy');
+            const apiKeyElement = document.querySelector('.api-key-value');
+
+            if (copyBtn && apiKeyElement) {
+                copyBtn.addEventListener('click', async () => {
+                    const fullKey = apiKeyElement.dataset.fullKey || apiKeyElement.textContent;
+
+                    try {
+                        await navigator.clipboard.writeText(fullKey);
+
+                        // 显示复制成功提示
+                        const originalHTML = copyBtn.innerHTML;
+                        copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>';
+                        copyBtn.style.color = '#10B981';
+
+                        setTimeout(() => {
+                            copyBtn.innerHTML = originalHTML;
+                            copyBtn.style.color = '';
+                        }, 2000);
+                    } catch (err) {
+                        console.error('复制失败:', err);
+                        alert('复制失败，请手动复制');
+                    }
+                });
+            }
+        }
+
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', () => {
+            // 初始化复制按钮
+            setupCopyButton();
+
+            // 获取用户数据
+            fetchUserData();
+
+            // 每 30 秒刷新一次数据
+            setInterval(fetchUserData, 30000);
+        });
     </script>
 </body>
 </html>
