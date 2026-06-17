@@ -1,0 +1,51 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="face-left" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#6a6a6a"/>
+      <stop offset="100%" style="stop-color:#4a4a4a"/>
+    </linearGradient>
+    <linearGradient id="face-right" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8a8a8a"/>
+      <stop offset="100%" style="stop-color:#5a5a5a"/>
+    </linearGradient>
+    <linearGradient id="face-top" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#909090"/>
+      <stop offset="100%" style="stop-color:#c8c8c8"/>
+    </linearGradient>
+    <linearGradient id="face-peak" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" style="stop-color:#f0f0f0"/>
+      <stop offset="100%" style="stop-color:#a0a0a0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 3D M - 完美居中 -->
+  <g transform="translate(100, 100)">
+    <!-- 左侧面 -->
+    <polygon points="-75,85 -75,-55 -50,-70 -50,70" fill="url(#face-left)"/>
+    <!-- 左顶面 -->
+    <polygon points="-75,-55 -50,-70 -10,-25 -35,-10" fill="url(#face-top)"/>
+
+    <!-- 中峰左 -->
+    <polygon points="-35,-10 -10,-25 0,10" fill="url(#face-peak)"/>
+    <!-- 中峰右 -->
+    <polygon points="0,10 10,-25 35,-10" fill="url(#face-top)"/>
+
+    <!-- 右顶面 -->
+    <polygon points="10,-25 50,-70 75,-55 35,-10" fill="url(#face-top)"/>
+    <!-- 右侧面 -->
+    <polygon points="50,-70 75,-55 75,85 50,70" fill="url(#face-right)"/>
+
+    <!-- 左腿 -->
+    <polygon points="-75,85 -50,70 -50,5 -35,-8 -35,70 -65,85" fill="url(#face-left)"/>
+    <!-- 右腿 -->
+    <polygon points="35,-8 35,70 65,85 75,85 50,70 50,5" fill="url(#face-right)"/>
+
+    <!-- 中心深度 -->
+    <polygon points="0,10 0,45 -20,28 -35,-8" fill="#2a2a2a"/>
+    <polygon points="0,10 0,45 20,28 35,-8" fill="#333"/>
+
+    <!-- 顶部高光线 -->
+    <path d="M-75,-55 L-50,-70 L-10,-25 L0,10 L10,-25 L50,-70 L75,-55"
+          fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linejoin="round"/>
+  </g>
+</svg>
