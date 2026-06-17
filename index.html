@@ -172,6 +172,23 @@
             50% { opacity: 0.25; transform: translateY(-20px) rotate(1deg); }
         }
 
+        /* ===== New API 导航栏占位 ===== */
+        .newapi-navbar-placeholder {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4rem;
+            background: #ffffff;
+            z-index: 1001;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 调整主内容区域，避免被占位遮挡 */
+        body {
+            padding-top: 4rem;
+        }
+
         /* ===== 导航栏 ===== */
         .navbar {
             position: fixed;
@@ -315,7 +332,7 @@
         /* ===== Hero 区域 ===== */
         .hero {
             text-align: center;
-            padding: 4rem 0 5rem;
+            padding: 6rem 0 5rem;
             position: relative;
         }
 
@@ -1297,6 +1314,9 @@
     </style>
 </head>
 <body>
+    <!-- New API 导航栏占位区域 -->
+    <div class="newapi-navbar-placeholder"></div>
+
     <!-- 背景系统 -->
     <div class="bg-system">
         <div class="bg-base"></div>
